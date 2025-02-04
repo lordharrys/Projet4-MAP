@@ -16,7 +16,9 @@ def recommandations(airports, new_routes, waiting_times, prices):
     options = ["Distance", "Temps", "Prix"]
     for option in options:
         tk.Radiobutton(root, text=option, variable=choix, value=option).pack(anchor="w")
-    dijkstra(choix.get())
+    if choix.get() == "Distance":
+        values = 1
+    dijkstra()
     
     return
 
