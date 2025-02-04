@@ -1,5 +1,5 @@
 # Objectif II
-
+import tkinter as tk
 """
 Input: 
 airports.csv
@@ -11,6 +11,12 @@ Ouput:
 path                array of edges to visit
 """
 def recommandations(airports, new_routes, waiting_times, prices):
+    root = tk.Tk()
+    choix = tk.StringVar()
+    options = ["Distance", "Temps", "Prix"]
+    for option in options:
+        tk.Radiobutton(root, text=option, variable=choix, value=option).pack(anchor="w")
+    dijkstra(choix.get())
     
     return
 
