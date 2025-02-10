@@ -59,5 +59,3 @@ def dfs(start, end, new_routes):
             visited.add(current)
             stack.extend(new_routes[current])
     return False
-
-    
