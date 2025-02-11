@@ -20,14 +20,15 @@ def a_star(V, adj, s, t):
             path.append(s)
             return path[::-1]  # Reverse the path
         
-        # Explore neighbors
-        # for neighbor in get_neighbors(current, grid):
-        #     tentative_g_score = g + 1  # Assuming each step has a cost of 1
-        #     if tentative_g_score < g_score.get(neighbor, float('inf')):
-        #         came_from[neighbor] = current
-        #         g_score[neighbor] = tentative_g_score
-        #         f_score[neighbor] = tentative_g_score + heuristic(neighbor, goal)
-        #         heapq.heappush(open_list, (f_score[neighbor], tentative_g_score, neighbor))
+        
+
+        for neighbor in adj[current]:
+             tentative_g_score = g + 1  # Assuming each step has a cost of 1
+             if tentative_g_score < g_score.get(neighbor, float('inf')):
+                 came_from[neighbor] = current
+                 g_score[neighbor] = tentative_g_score
+                 f_score[neighbor] = tentative_g_score + heuristic(neighbor, t)
+                 heapq.heappush(open_list, (f_score[neighbor], tentative_g_score, neighbor))
         
     
     return math.inf  # If no path found
