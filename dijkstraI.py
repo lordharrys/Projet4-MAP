@@ -1,4 +1,5 @@
 import heapq as hp
+from directed_edge import directed_edge
 
 
 def dijkstra(V, adj, s, t):
@@ -36,10 +37,3 @@ def dijkstra(V, adj, s, t):
     path.reverse()
 
     return path
-
-
-class directed_edge:
-    def __init__(self, v, w, weight):
-        self.v = v
-        self.w = w
-        self.weight = weight

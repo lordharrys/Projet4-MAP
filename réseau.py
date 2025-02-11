@@ -2,6 +2,7 @@ from pyomo.environ import *
 from data_preprocessing import data_preprocessing
 
 
+
 def reseau(airports, routes, C):
     model = ConcreteModel()
     model.x = Var(routes, within=Binary)
