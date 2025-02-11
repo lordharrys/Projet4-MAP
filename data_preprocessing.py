@@ -8,6 +8,8 @@ def data_preprocessing(airports, routes):
     """
     airports = pd.read_csv(airports)
     routes = pd.read_csv(routes)
+    latitudes = [lat for lat in airports["latitude"]]
+    longitudes = [lon for lon in airports["longitude"]]
 
     G = nx.DiGraph()
 
@@ -25,7 +27,7 @@ def data_preprocessing(airports, routes):
             dist = distance(lat1, lon1, lat2, lon2)  
             G.add_edge(start, end, weight=dist)
     
-    return airports, routes, G
+    return airports, routes, G, latitudes, longitudes
 
 
-airports, routes, G = data_preprocessing("files/airports.csv", "files/pre_existing_routes.csv")
+airports, routes, G, latitudes, longitudes = data_preprocessing("files/airports.csv", "files/pre_existing_routes.csv")
