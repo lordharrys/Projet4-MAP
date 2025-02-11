@@ -60,16 +60,7 @@ def plot_network(G):
     plt.show()
 
 
-def resolution(G, pairs_to_connect, edges, C=1000):    
-    """
-    Modèle d'opti du problème avec la résolution en utilisant Pyomo
-    Input:
-        - G: graphe du problème sous la forme networkx.
-        - pairs_to_connect: une liste de tuples avec les paires d'aéroports à lier.
-        - edges: un dictionnaire avec les distances entre les noeuds.
-    Output:
-        - Le modèle de la solution du problème.
-    """
+def resolution(G, pairs_to_connect, edges, C):    
     
     # Création du modèle
     model = ConcreteModel()
@@ -81,20 +72,20 @@ def resolution(G, pairs_to_connect, edges, C=1000):
     model.d = Var(pairs_to_connect, within=NonNegativeReals)
 
     # Variable pour s'assurer qu'on inclut bien un chemin entre les paires qu'on veut lier
+    # Une variable par noeud par paire à lier
     model.f = Var(pairs_to_connect, G.edges, within=NonNegativeReals)
 
     # Création de la fonction objectif : somme des distances des chemins entre paires + C * nbre d'arêtes
-    model.obj = Objective(
-    expr=builtins.sum(model.d[p] for p in pairs_to_connect) + C*builtins.sum(model.x[e] for e in G.edges),
-        sense=minimize)
+    model.obj = Objective(expr=builtins.sum(model.d[p] for p in pairs_to_connect) + C*builtins.sum(model.x[e] for e in G.edges),sense=minimize)
     
     # On ajoute une contrainte pour chaque paire qui dit que d >= somme des distances du chemin qu'on a choisi pour 
     # les lier
-    for (i, j) in pairs_to_connect:
-        model.add_component(f"shortest_path_{i}_{j}", Constraint(expr=model.d[i, j] >= builtins.sum(edges[e] * model.f[(i, j), e] for e in G.edges)))
+    for i in pairs_to_connect:
+        model.add_component(f"shortest_path_{i}", Constraint(expr=model.d[i] >= builtins.sum(edges[e] * model.f[i, e] for e in G.edges)))
 
     # Pour chaque paire on dit que la somme des chemins entrants = sortants sauf si on est au noeud dans la paire 
     # dans ce cas tu dois sortir plus que tu rentres et vice versa
+    # Evidemment il y a pour chaque noeud une variable par paire
     for (p, q) in pairs_to_connect:
         for node in G.nodes:
             ini = builtins.sum(model.f[(p, q), (i, j)] for (i, j) in G.in_edges(node) if (i, j) in G.edges)
@@ -107,9 +98,9 @@ def resolution(G, pairs_to_connect, edges, C=1000):
                 model.add_component(f"conservation_{p}_{q}_{node}", Constraint(expr=out - ini == 0))
 
     # Assure que une arête n'est utilisée uniquemet si elle est prise en compte dans notre réseau
-    for (p, q) in pairs_to_connect:
+    for i in pairs_to_connect:
         for e in G.edges:
-            model.add_component(f"flow_activation_{p}_{q}_{e}", Constraint(expr=model.f[(p, q), e] <= model.x[e]))
+            model.add_component(f"activation_{i}_{e}", Constraint(expr=model.f[(p, q), e] <= model.x[e]))
 
 
     solver = SolverFactory('glpk')  
