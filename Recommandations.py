@@ -29,6 +29,7 @@ def recommandations(airports, new_routes, waiting_times, prices):
     if end not in airports:
         print("Veuillez entrer un aéroport valide.")
         return
+    # si dans la liste J pas besoin
     if dfs(start, end, new_routes)==False:
         print("Ce trajet n'est pas possible.")
         return
