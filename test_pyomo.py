@@ -15,7 +15,7 @@ model.constraint1 = Constraint(expr=model.x + model.y >= 4)
 model.constraint2 = Constraint(expr=model.x - model.y <= 2)
 
 # Résolution du modèle
-solver = SolverFactory('cbc')  # Utilisation du solveur GLPK (vous pouvez utiliser d'autres solveurs comme 'cplex' ou 'gurobi')
+solver = SolverFactory('glpk')  # Utilisation du solveur GLPK (vous pouvez utiliser d'autres solveurs comme 'cplex' ou 'gurobi')
 solver.solve(model)
 
 # Affichage des résultats
