@@ -48,7 +48,9 @@ def plot_network(G):
 
     for node in G.nodes():
         lat, lon = G.nodes[node]["latitude"], G.nodes[node]["longitude"]
+        # Les noeuds sont nommés par leur ID
         ax.scatter(lon, lat, color='red', s=10, transform=ccrs.PlateCarree())
+        ax.annotate(node, (lon, lat), color='black', fontsize=8, ha='right', va='top', transform=ccrs.PlateCarree())
 
     for start, end in G.edges():
         lat1, lon1 = G.nodes[start]["latitude"], G.nodes[start]["longitude"]
@@ -88,8 +90,8 @@ def resolution(G, pairs_to_connect, edges, C):
     # Evidemment il y a pour chaque noeud une variable par paire
     for (p, q) in pairs_to_connect:
         for node in G.nodes:
-            ini = builtins.sum(model.f[(p, q), (i, j)] for (i, j) in G.in_edges(node) if (i, j) in G.edges)
-            out = builtins.sum(model.f[(p, q), (i, j)] for (i, j) in G.out_edges(node) if (i, j) in G.edges)
+            ini = builtins.sum(model.f[(p, q), i] for i in G.in_edges(node) if i in G.edges)
+            out = builtins.sum(model.f[(p, q), i] for i in G.out_edges(node) if i in G.edges)
             if node == p:  
                 model.add_component(f"source_{p}_{q}_{node}", Constraint(expr=out - ini == 1))
             elif node == q:  
@@ -112,6 +114,12 @@ pairs_to_connect = [('LOS', 'BOS')]
 model = resolution(G, pairs_to_connect, edges, 0.1)
 
 print(f"Résultat : {model.obj()*10**(-3)} km")
+list = []
 for e in G.edges:
     if model.x[e].value > 0:
         print(f"Arête {e}")
+    else:
+        list.append(e)
+G.remove_edges_from(list)
+
+plot_network(G)
