@@ -12,6 +12,7 @@ def test_direct():
     pairs_to_connect = [('BKK','ADD')]
 
     model = Projet4.resolution(Projet4.G, pairs_to_connect, Projet4.edges, 1)
+    
     return model.obj()
 
 def test_not_direct():
@@ -52,8 +53,11 @@ def test_complex2():
 class TestResolution(unittest.TestCase):
     def test_simple(self):
         self.assertEqual(round(test_shortest(),4), round(nx.shortest_path_length(Projet4.G, source="LOS", target="BOS",weight='weight'),4))
+        print(f"\nError of the test with C = 0 and 1 pair : {abs(test_shortest() - nx.shortest_path_length(Projet4.G, source='LOS', target='BOS',weight='weight'))}")
         self.assertEqual(round(test_direct(),4), round(nx.shortest_path_length(Projet4.G, source="BKK", target="ADD",weight='weight'),4)+1)
+        print(f"Error of the test with C = 1 and 1 pair : {abs(test_direct() - nx.shortest_path_length(Projet4.G, source='BKK', target='ADD',weight='weight')-1)}")
         self.assertEqual(round(test_not_direct(),4), round(nx.shortest_path_length(Projet4.G, source="LGW", target="ADD",weight='weight'),4))
+        print(f"Error of the test with C = 0 and 1 pair : {abs(test_not_direct() - nx.shortest_path_length(Projet4.G, source='LGW', target='ADD',weight='weight'))}")
     
     
     def test_multiple_pairs(self):
@@ -63,9 +67,11 @@ class TestResolution(unittest.TestCase):
             sum += nx.shortest_path_length(Projet4.G, source=i, target=j,weight='weight')
         
         self.assertEqual(round(test_complex(),4), round(sum/len(pairs_to_connect),4))
+        print(f"\nError of the test with C = 0 and 1 pair : {test_complex() - sum/len(pairs_to_connect)}")
 
         result, sum1 = test_complex2()
         self.assertEqual(round(result,4), round(sum1,4))
+        print(f"Error of the test with C = 0 and 40 pairs : {result - sum1}")
 
 
 
