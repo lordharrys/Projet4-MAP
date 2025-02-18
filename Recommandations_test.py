@@ -1,4 +1,5 @@
 from Recommandations import recommandations
+from Recommandations import recommandations_interface
 import networkx as nx
 from distance import distance
 
@@ -59,4 +60,5 @@ time = {
 }
 
 # Test the recommandations function
-recommandations(G, waiting_times, prices,J,time)
+#recommandations(G, waiting_times, prices,J,time)
+recommandations_interface(G, waiting_times, prices,J,time)

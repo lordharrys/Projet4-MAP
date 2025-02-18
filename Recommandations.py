@@ -49,14 +49,29 @@ def recommandations(G, waiting_times, prices,J,time):
     return
 
 
-"""
-Input: 
-V                   array of vertices
-E                   array of edges
-values              array of edges' values
-start               starting airport
-end                 ending airport
-"""
+def recommandations_interface(G, waiting_times, prices,J,time):
+    window = tk.Tk()
+    window.title("Recommandations")
+    
+    Question1 = tk.Label(window, text="Quel critère est le plus important pour vous ? ")
+    Question1.pack()
+    preference = tk.Scrollbar(window)
+    preference.pack(side=tk.RIGHT, fill=tk.Y)
+    listbox = tk.Listbox(window, yscrollcommand=preference.set)
+    listbox.insert(tk.END, "Distance")
+    listbox.insert(tk.END, "Temps")
+    listbox.insert(tk.END, "Prix")
+    listbox.pack()
+    preference.config(command=listbox.yview)
+    
+    listbox.bind("<ButtonRelease-1>", lambda event: on_item_click(event, listbox))
+    
+    window.mainloop()
+    
+def on_item_click(event,listbox):
+    clicked_item = listbox.get(listbox.nearest(event.y))  # Get the item where the click occurred
+    return clicked_item
+
 
 def dfs(start, end, G):
     visited = set()
@@ -69,4 +84,3 @@ def dfs(start, end, G):
             visited.add(current)
             stack.extend(neighbor for neighbor in G.neighbors(current) if neighbor not in visited)
     return False
-
