@@ -19,11 +19,10 @@ for airport in airports:
 
 # Add edges (routes) with distances
 routes = [
-    {"ID_start": "A1", "ID_end": "A2"},
-    {"ID_start": "A2", "ID_end": "A3"},
-    {"ID_start": "A3", "ID_end": "A4"},
-    {"ID_start": "A4", "ID_end": "A5"},
-    {"ID_start": "A5", "ID_end": "A1"}
+    {"ID_start": "A1", "ID_end": "A2","weight": 100},
+    {"ID_start": "A2", "ID_end": "A3","weight": 200},
+    {"ID_start": "A3", "ID_end": "A4",'weight': 300},
+    {"ID_start": "A4", "ID_end": "A5","weight": 400},
 ]
 
 for route in routes:
@@ -46,19 +45,17 @@ waiting_times = {
 }
 
 prices = {
-    ("A1", "A2"): 100,
-    ("A2", "A3"): 200,
-    ("A3", "A4"): 300,
-    ("A4", "A5"): 400,
-    ("A5", "A1"): 500
+    ("A1","A2"): 100,
+    ("A2","A3"): 200,
+    ("A3","A4"): 300,
+    ("A4","A5"): 400
 }
-J = [("A1", "A2"), ("A2", "A3"), ("A3", "A4"), ("A4", "A5"), ("A5", "A1")]
+J = [("A1", "A2"), ("A2", "A3"), ("A3", "A4"), ("A4", "A5")]
 time = {
-    ("A1", "A2"): 1,
-    ("A2", "A3"): 1,
-    ("A3", "A4"): 1,
-    ("A4", "A5"): 1,
-    ("A5", "A1"): 1
+    ("A1","A2"): 10,
+    ("A2","A3"): 20,
+    ("A3","A4"): 30,
+    ("A4","A5"): 40
 }
 
 # Test the recommandations function

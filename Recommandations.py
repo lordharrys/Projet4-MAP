@@ -35,15 +35,17 @@ def recommandations(G, waiting_times, prices,J,time):
             print("Ce trajet n'est pas possible.")
             return
         
-    routes_values = G.copy()
-    for u, v in routes_values.edges:
-        routes_values[u][v]["weight"] = values[u][v]
-        if preferences == "Temps":
-            if u != start :
-                routes_values[u][v]["weight"] += waiting_times[u]
+    routes_values = nx.DiGraph(G)
+    if(preferences != "Distance"):
+        for u, v in routes_values.edges:
+            routes_values[u][v]["weight"] = values.get((u, v))
+            if preferences == "Temps":
+                if u != start :
+                    routes_values[u][v]["weight"] += waiting_times[u]
     
-    nx.shortest_path(G, source=start, target=end, weight="weight")
+    solution = nx.shortest_path(G, source=start, target=end, weight="weight")
     print("chemin trouvé yay")
+    print(solution)
     return
 
 
