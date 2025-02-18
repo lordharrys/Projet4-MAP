@@ -1,5 +1,6 @@
 # Objectif II
 import tkinter as tk
+import networkx as nx
 """
 Input: 
 airports.csv
@@ -10,30 +11,39 @@ prices.csv
 Ouput:
 path                array of edges to visit
 """
-def recommandations(airports, new_routes, waiting_times, prices):
+def recommandations(G, waiting_times, prices,J,time):
     preferences = input("Quel critère est le plus important pour vous ? (Distance, Temps, Prix) : ")
     if preferences == "Distance":
-        values = new_routes
-    if preferences == "Temps":
-        values = waiting_times
-    if preferences == "Prix":
+        values = nx.get_edge_attributes(G, "weight")
+    elif preferences == "Temps":
+        values = time
+    elif preferences == "Prix":
         values = prices
     else:
         print("Veuillez entrer un critère valide.")
         return
     start = input("Aéroport de départ : ")
-    if start not in airports:
+    if start not in G.nodes:
         print("Veuillez entrer un aéroport valide.")
         return
     end = input("Aéroport d'arrivée : ")
-    if end not in airports:
+    if end not in G.nodes:
         print("Veuillez entrer un aéroport valide.")
         return
-    # si dans la liste J pas besoin
-    if dfs(start, end, new_routes)==False:
-        print("Ce trajet n'est pas possible.")
-        return
-    dijkstra(airports, new_routes, values, start, end)
+    if(start,end) not in J:
+        if dfs(start, end, G)==False:
+            print("Ce trajet n'est pas possible.")
+            return
+        
+    routes_values = G.copy()
+    for u, v in routes_values.edges:
+        routes_values[u][v]["weight"] = values[u][v]
+        if preferences == "Temps":
+            if u != start :
+                routes_values[u][v]["weight"] += waiting_times[u]
+    
+    nx.shortest_path(G, source=start, target=end, weight="weight")
+    print("chemin trouvé yay")
     return
 
 
@@ -45,11 +55,8 @@ values              array of edges' values
 start               starting airport
 end                 ending airport
 """
-def dijkstra(V, E, values, start, end):
 
-    return
-
-def dfs(start, end, new_routes):
+def dfs(start, end, G):
     visited = set()
     stack = [start]
     while stack:
@@ -58,5 +65,6 @@ def dfs(start, end, new_routes):
             return True
         if current not in visited:
             visited.add(current)
-            stack.extend(new_routes[current])
+            stack.extend(neighbor for neighbor in G.neighbors(current) if neighbor not in visited)
     return False
+

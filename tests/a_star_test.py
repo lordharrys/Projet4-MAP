@@ -1,8 +1,6 @@
 # Description: Test cases for A* algorithm
 from a_star import a_star
 from a_star import heuristic
-from distance import distance
-from dijsktra_own import directed_edge
 
 # Example graph    
 V = [0, 1, 2, 3, 4]
