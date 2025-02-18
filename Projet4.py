@@ -78,7 +78,7 @@ def resolution(G, pairs_to_connect, edges, C):
     model.f = Var(pairs_to_connect, G.edges, within=NonNegativeReals)
 
     # Création de la fonction objectif : somme des distances des chemins entre paires + C * nbre d'arêtes
-    model.obj = Objective(expr=builtins.sum(model.d[p] for p in pairs_to_connect) + C*builtins.sum(model.x[e] for e in G.edges),sense=minimize)
+    model.obj = Objective(expr=builtins.sum(model.d[p] for p in pairs_to_connect)/len(pairs_to_connect) + C*builtins.sum(model.x[e] for e in G.edges),sense=minimize)
     
     # On ajoute une contrainte pour chaque paire qui dit que d >= somme des distances du chemin qu'on a choisi pour 
     # les lier

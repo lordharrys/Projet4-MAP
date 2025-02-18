@@ -25,6 +25,7 @@ def test_complex():
     return model.obj()
 
 def test_complex2():
+    # Liste aléatoire de 40 aéroports générée par une IA
     list = [
     ('ADD', 'LOS'), ('HKG', 'SVO'), ('SZX', 'SDU'), ('IAH', 'BOM'),
     ('DMK', 'SGN'), ('SVO', 'SCL'), ('KMG', 'JFK'), ('SYD', 'BOS'),
@@ -41,7 +42,12 @@ def test_complex2():
     sum = 0
     for i,j in list:
         sum += nx.shortest_path_length(Projet4.G, source=i, target=j,weight='weight')
-    return model.obj(), sum
+    
+    return model.obj(), sum/len(list)
+
+
+
+
 
 class TestResolution(unittest.TestCase):
     def test_simple(self):
@@ -55,10 +61,12 @@ class TestResolution(unittest.TestCase):
         sum = 0
         for i,j in pairs_to_connect:
             sum += nx.shortest_path_length(Projet4.G, source=i, target=j,weight='weight')
-        self.assertEqual(round(test_complex(),4), round(sum,4))
+        
+        self.assertEqual(round(test_complex(),4), round(sum/len(pairs_to_connect),4))
 
         result, sum1 = test_complex2()
         self.assertEqual(round(result,4), round(sum1,4))
+
 
 
 
