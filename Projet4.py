@@ -83,7 +83,7 @@ def resolution(G, pairs_to_connect, edges, C):
     # On ajoute une contrainte pour chaque paire qui dit que d >= somme des distances du chemin qu'on a choisi pour 
     # les lier
     for i in pairs_to_connect:
-        model.add_component(f"shortest_path_{i}", Constraint(expr=model.d[i] >= builtins.sum(edges[e] * model.f[i, e] for e in G.edges)))
+        model.add_component(f"shortest_path_{i}", Constraint(expr=model.d[i] == builtins.sum(edges[e] * model.f[i, e] for e in G.edges)))
 
     # Pour chaque paire on dit que la somme des chemins entrants = sortants sauf si on est au noeud dans la paire 
     # dans ce cas tu dois sortir plus que tu rentres et vice versa
@@ -110,16 +110,4 @@ def resolution(G, pairs_to_connect, edges, C):
 
     return model
 
-pairs_to_connect = [('LOS', 'BOS')]
-model = resolution(G, pairs_to_connect, edges, 0.1)
 
-print(f"Résultat : {model.obj()*10**(-3)} km")
-list = []
-for e in G.edges:
-    if model.x[e].value > 0:
-        print(f"Arête {e}")
-    else:
-        list.append(e)
-G.remove_edges_from(list)
-
-plot_network(G)
