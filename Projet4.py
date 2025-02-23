@@ -78,12 +78,12 @@ def resolution(G, pairs_to_connect, edges, C):
     model.f = Var(pairs_to_connect, G.edges, within=NonNegativeReals)
 
     # Création de la fonction objectif : somme des distances des chemins entre paires + C * nbre d'arêtes
-    model.obj = Objective(expr=builtins.sum(model.d[p] for p in pairs_to_connect) + C*builtins.sum(model.x[e] for e in G.edges),sense=minimize)
+    model.obj = Objective(expr=builtins.sum(model.d[p] for p in pairs_to_connect)/len(pairs_to_connect) + C*builtins.sum(model.x[e] for e in G.edges),sense=minimize)
     
     # On ajoute une contrainte pour chaque paire qui dit que d >= somme des distances du chemin qu'on a choisi pour 
     # les lier
     for i in pairs_to_connect:
-        model.add_component(f"shortest_path_{i}", Constraint(expr=model.d[i] >= builtins.sum(edges[e] * model.f[i, e] for e in G.edges)))
+        model.add_component(f"shortest_path_{i}", Constraint(expr=model.d[i] == builtins.sum(edges[e] * model.f[i, e] for e in G.edges)))
 
     # Pour chaque paire on dit que la somme des chemins entrants = sortants sauf si on est au noeud dans la paire 
     # dans ce cas tu dois sortir plus que tu rentres et vice versa
@@ -99,7 +99,7 @@ def resolution(G, pairs_to_connect, edges, C):
             else:  
                 model.add_component(f"conservation_{p}_{q}_{node}", Constraint(expr=out - ini == 0))
 
-    # Assure que une arête n'est utilisée uniquemet si elle est prise en compte dans notre réseau
+    # Assure que une arête n'est utilisée uniquement si elle est prise en compte dans notre réseau
     for i in pairs_to_connect:
         for e in G.edges:
             model.add_component(f"activation_{i}_{e}", Constraint(expr=model.f[(p, q), e] <= model.x[e]))
@@ -110,16 +110,4 @@ def resolution(G, pairs_to_connect, edges, C):
 
     return model
 
-pairs_to_connect = [('LOS', 'BOS')]
-model = resolution(G, pairs_to_connect, edges, 0.1)
 
-print(f"Résultat : {model.obj()*10**(-3)} km")
-list = []
-for e in G.edges:
-    if model.x[e].value > 0:
-        print(f"Arête {e}")
-    else:
-        list.append(e)
-G.remove_edges_from(list)
-
-plot_network(G)
