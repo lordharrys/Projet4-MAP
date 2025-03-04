@@ -102,10 +102,10 @@ def resolution(G, pairs_to_connect, edges, C):
     # Assure que une arête n'est utilisée uniquement si elle est prise en compte dans notre réseau
     for i in pairs_to_connect:
         for e in G.edges:
-            model.add_component(f"activation_{i}_{e}", Constraint(expr=model.f[(p, q), e] <= model.x[e]))
+            model.add_component(f"activation_{i}_{e}", Constraint(expr=model.f[i, e] <= model.x[e]))
 
 
-    solver = SolverFactory('glpk')  
+    solver = SolverFactory('cbc')  
     solver.solve(model, tee=False)
 
     return model
