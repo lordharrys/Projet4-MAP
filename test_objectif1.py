@@ -7,44 +7,12 @@ import csv
 import pandas as pd
 from distance import distance
 
-G_small = nx.DiGraph()
-G, edges = data_preprocessing.data_processing("files/airports.csv", "files/routes.csv")
 
-airports_random = [
-    {"ID": "YYZ", "name": "Lester B. Pearson International Airport", "city": "Toronto", "country": "Canada", "latitude": 43.6772003174, "longitude": -79.6305999756},
-    {"ID": "ALG", "name": "Houari Boumediene Airport", "city": "Algier", "country": "Algeria", "latitude": 36.691001892089844, "longitude": 3.215409994125366},
-    {"ID": "DXB", "name": "Dubai International Airport", "city": "Dubai", "country": "United Arab Emirates", "latitude": 25.2527999878, "longitude": 55.3643989563},
-    {"ID": "LHR", "name": "London Heathrow Airport", "city": "London", "country": "United Kingdom", "latitude": 51.4706, "longitude": -0.461941},
-    {"ID": "BKK", "name": "Suvarnabhumi Airport", "city": "Bangkok", "country": "Thailand", "latitude": 13.681099891662598, "longitude": 100.74700164794922},
-    {"ID": "MEX", "name": "Licenciado Benito Juarez International Airport", "city": "Mexico City", "country": "Mexico", "latitude": 19.4363, "longitude": -99.072098},
-    {"ID": "SYD", "name": "Sydney Kingsford Smith International Airport", "city": "Sydney", "country": "Australia", "latitude": -33.94609832763672, "longitude": 151.177001953125},
-    {"ID": "JNB", "name": "OR Tambo International Airport", "city": "Johannesburg", "country": "South Africa", "latitude": -26.1392, "longitude": 28.246},
-    {"ID": "SFO", "name": "San Francisco International Airport", "city": "San Francisco", "country": "United States", "latitude": 37.61899948120117, "longitude": -122.375},
-    {"ID": "ICN", "name": "Incheon International Airport", "city": "Seoul", "country": "South Korea", "latitude": 37.46910095214844, "longitude": 126.45099639892578}
-]
+G, edges = data_preprocessing.data_processing("files/airports.csv", "files/pre_existing_routes.csv")
 
-for airport in airports_random:
-    G_small.add_node(airport["ID"], name=airport["name"], city=airport["city"], country=airport["country"], latitude=airport["latitude"], longitude=airport["longitude"])
-
-# List of airport IDs from airports_random
-airport_ids = {"YYZ", "ALG", "DXB", "LHR", "BKK", "MEX", "SYD", "JNB", "SFO", "ICN"}
-
-df = pd.read_csv("files/pre_existing_routes.csv")
+G_small, filtered_routes = data_preprocessing.data_processing("files/airports.csv", "files/pre_existing_routes.csv")
 
 
-# Convert the filtered DataFrame to a list of dictionaries
-filtered_routes = {}
-
-for _,route in df.iterrows():
-    start, end = route["ID_start"], route["ID_end"]
-    if start in G_small.nodes and end in G_small.nodes:
-        lat1 = G_small.nodes[start]["latitude"]
-        lon1 = G_small.nodes[start]["longitude"]
-        lat2 = G_small.nodes[end]["latitude"]
-        lon2 = G_small.nodes[end]["longitude"]
-        dist = distance(lat1, lon1, lat2, lon2)
-        G_small.add_edge(start, end, weight=dist)
-        filtered_routes[(start, end)] = dist  
 
 
 def test_shortest():

@@ -22,7 +22,7 @@ def data_processing(file, route):
             lon1 = G.nodes[start]["longitude"]
             lat2 = G.nodes[end]["latitude"]
             lon2 = G.nodes[end]["longitude"]
-            dist = distance.distance(lat1, lon1, lat2, lon2)  
+            dist = distance(lat1, lon1, lat2, lon2)  
             G.add_edge(start, end, weight=dist)
             edges[(start, end)] = dist  
     return G, edges
