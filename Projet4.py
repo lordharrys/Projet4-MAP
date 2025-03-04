@@ -1,35 +1,9 @@
 import pandas as pd
 import networkx as nx
 import matplotlib.pyplot as plt
-import cartopy.crs as ccrs
-import cartopy.feature as cfeature
 from pyomo.environ import *
 import builtins
 import distance
-
-
-airports = pd.read_csv("files/airports.csv")
-routes = pd.read_csv("files/pre_existing_routes.csv")
-
-G = nx.DiGraph()
-
-for _, row in airports.iterrows():
-    G.add_node(row["ID"], name=row["name"], city=row["city"], country=row["country"], latitude=row["latitude"], longitude=row["longitude"])
-    
-
-edges = {}
-for _, row in routes.iterrows():
-    start, end = row["ID_start"], row["ID_end"]
-    
-    if start in G.nodes and end in G.nodes:
-        lat1 = G.nodes[start]["latitude"]
-        lon1 = G.nodes[start]["longitude"]
-        lat2 = G.nodes[end]["latitude"]
-        lon2 = G.nodes[end]["longitude"]
-        dist = distance.distance(lat1, lon1, lat2, lon2)  
-        G.add_edge(start, end, weight=dist)
-        edges[(start, end)] = dist  
-
 
 def resolution(G, pairs_to_connect, edges, C):    
     

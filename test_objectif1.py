@@ -1,4 +1,5 @@
 import Projet4 
+import data_preprocessing
 import distance
 import unittest
 import networkx as nx
@@ -7,6 +8,7 @@ import pandas as pd
 from distance import distance
 
 G_small = nx.DiGraph()
+G, edges = data_preprocessing.data_processing("files/airports.csv", "files/routes.csv")
 
 airports_random = [
     {"ID": "YYZ", "name": "Lester B. Pearson International Airport", "city": "Toronto", "country": "Canada", "latitude": 43.6772003174, "longitude": -79.6305999756},
@@ -47,7 +49,7 @@ for _,route in df.iterrows():
 
 def test_shortest():
     pairs_to_connect = [('LOS', 'BOS')]
-    model = Projet4.resolution(Projet4.G, pairs_to_connect, Projet4.edges, 0)
+    model = Projet4.resolution(G, pairs_to_connect, edges, 0)
     return model.obj()
 
 def test_shortest_cbig():
@@ -60,23 +62,23 @@ def test_shortest_cbig():
 def test_direct():
     pairs_to_connect = [('BKK','ADD')]
 
-    model = Projet4.resolution(Projet4.G, pairs_to_connect, Projet4.edges, 1)
+    model = Projet4.resolution(G, pairs_to_connect, edges, 1)
     
     return model.obj()
 
 def test_not_direct():
     pairs_to_connect = [('LGW','ADD')]
-    model = Projet4.resolution(Projet4.G, pairs_to_connect, Projet4.edges, 0)
+    model = Projet4.resolution(G, pairs_to_connect, edges, 0)
     return model.obj()
 
 def test_complex():
     pairs_to_connect = [('LOS', 'BOS'), ('BKK','ADD'), ('LGW','ADD'), ('BKK','LOS'), ('LGW','BOS'), ('LGW','LOS'), ('BKK','BOS'), ('BKK','LGW'), ('LOS','ADD'), ('BOS','ADD')]
-    model = Projet4.resolution(Projet4.G, pairs_to_connect, Projet4.edges, 0)    
+    model = Projet4.resolution(G, pairs_to_connect, edges, 0)    
     return model.obj()
 
 # def test_complex_c5():
 #     pairs_to_connect = [('LOS', 'BOS'), ('BKK','ADD'), ('LGW','ADD'), ('BKK','LOS'), ('LGW','BOS'), ('LGW','LOS'), ('BKK','BOS'), ('BKK','LGW'), ('LOS','ADD'), ('BOS','ADD')]
-#     model = Projet4.resolution(Projet4.G, pairs_to_connect, Projet4.edges, 5)    
+#     model = Projet4.resolution(G, pairs_to_connect, edges, 5)    
 #     return model.obj()
 
 def test_complex2():
@@ -93,10 +95,10 @@ def test_complex2():
     ('CBR', 'LOS'), ('MCO', 'SHA'), ('AMS', 'MEX'), ('JNB', 'HGH'),
     ('BSB', 'TPE'), ('SHA', 'PVG'), ('BSB', 'IAH'), ('ADL', 'HND')
     ]
-    model = Projet4.resolution(Projet4.G, list, Projet4.edges, 0)
+    model = Projet4.resolution(G, list, edges, 0)
     sum = 0
     for i,j in list:
-        sum += nx.shortest_path_length(Projet4.G, source=i, target=j,weight='weight')
+        sum += nx.shortest_path_length(G, source=i, target=j,weight='weight')
     
     return model.obj(), sum/len(list)
 
@@ -122,10 +124,10 @@ def test_bcp():
     ('ATL', 'LGW'), ('NBO', 'LHR'), ('BKK', 'MCO'), ('IAH', 'CDG'), ('TPE', 'MIA'),
     ('CAN', 'MEX'), ('EZE', 'HGH'), ('BOG', 'YYZ'), ('KMG', 'DFW'), ('DEL', 'LAX')
     ]
-    model = Projet4.resolution(Projet4.G, list, Projet4.edges, 0)
+    model = Projet4.resolution(G, list, edges, 0)
     sum = 0
     for i,j in list:
-        sum += nx.shortest_path_length(Projet4.G, source=i, target=j,weight='weight')
+        sum += nx.shortest_path_length(G, source=i, target=j,weight='weight')
     
     return model.obj(), sum/len(list)
 
@@ -133,12 +135,12 @@ def test_bcp():
 
 class TestResolution(unittest.TestCase):
     def test_simple(self):
-        #self.assertEqual(round(test_shortest(),4), round(nx.shortest_path_length(Projet4.G, source="LOS", target="BOS",weight='weight'),4))
-        print(f"\nError of the test with C = 0 and 1 pair : {abs(test_shortest() - nx.shortest_path_length(Projet4.G, source='LOS', target='BOS',weight='weight'))}")
-        #self.assertEqual(round(test_direct(),4), round(nx.shortest_path_length(Projet4.G, source="BKK", target="ADD",weight='weight'),4)+1)
-        print(f"Error of the test with C = 1 and 1 pair : {abs(test_direct() - nx.shortest_path_length(Projet4.G, source='BKK', target='ADD',weight='weight')-1)}")
-        #self.assertEqual(round(test_not_direct(),4), round(nx.shortest_path_length(Projet4.G, source="LGW", target="ADD",weight='weight'),4))
-        print(f"Error of the test with C = 0 and 1 pair : {abs(test_not_direct() - nx.shortest_path_length(Projet4.G, source='LGW', target='ADD',weight='weight'))}")
+        #self.assertEqual(round(test_shortest(),4), round(nx.shortest_path_length(G, source="LOS", target="BOS",weight='weight'),4))
+        print(f"\nError of the test with C = 0 and 1 pair : {abs(test_shortest() - nx.shortest_path_length(G, source='LOS', target='BOS',weight='weight'))}")
+        #self.assertEqual(round(test_direct(),4), round(nx.shortest_path_length(G, source="BKK", target="ADD",weight='weight'),4)+1)
+        print(f"Error of the test with C = 1 and 1 pair : {abs(test_direct() - nx.shortest_path_length(G, source='BKK', target='ADD',weight='weight')-1)}")
+        #self.assertEqual(round(test_not_direct(),4), round(nx.shortest_path_length(G, source="LGW", target="ADD",weight='weight'),4))
+        print(f"Error of the test with C = 0 and 1 pair : {abs(test_not_direct() - nx.shortest_path_length(G, source='LGW', target='ADD',weight='weight'))}")
         #self.assertEqual(round(test_shortest_c1000000000(),4), round(50000000000),4))
         print(f"Error of the test with C = 100000000000 and 1 pair : {abs(test_shortest_cbig() -50000000000- 100000000000)}")
     
@@ -147,7 +149,7 @@ class TestResolution(unittest.TestCase):
         pairs_to_connect = [('LOS', 'BOS'), ('BKK','ADD'), ('LGW','ADD'), ('BKK','LOS'), ('LGW','BOS'), ('LGW','LOS'), ('BKK','BOS'), ('BKK','LGW'), ('LOS','ADD'), ('BOS','ADD')]
         sum = 0
         for i,j in pairs_to_connect:
-            sum += nx.shortest_path_length(Projet4.G, source=i, target=j,weight='weight')
+            sum += nx.shortest_path_length(G, source=i, target=j,weight='weight')
         
         #self.assertEqual(round(test_complex(),4), round(sum/len(pairs_to_connect),4))
         print(f"\nError of the test with C = 0 and 1 pair : {test_complex() - sum/len(pairs_to_connect)}")
