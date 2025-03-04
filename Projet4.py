@@ -31,37 +31,6 @@ for _, row in routes.iterrows():
         edges[(start, end)] = dist  
 
 
-def plot_network(G):
-    """
-    Plots le graphe sur une carte de la Terre.
-
-    Input:
-        - G: un graphe networkx du problème.
-    
-    """
-    fig = plt.figure(figsize=(12, 8))
-    ax = plt.axes(projection=ccrs.PlateCarree())
-    ax.set_global()
-
-    ax.add_feature(cfeature.COASTLINE, linewidth=0.5)
-    ax.add_feature(cfeature.BORDERS, linestyle=':')
-
-    for node in G.nodes():
-        lat, lon = G.nodes[node]["latitude"], G.nodes[node]["longitude"]
-        # Les noeuds sont nommés par leur ID
-        ax.scatter(lon, lat, color='red', s=10, transform=ccrs.PlateCarree())
-        ax.annotate(node, (lon, lat), color='black', fontsize=8, ha='right', va='top', transform=ccrs.PlateCarree())
-
-    for start, end in G.edges():
-        lat1, lon1 = G.nodes[start]["latitude"], G.nodes[start]["longitude"]
-        lat2, lon2 = G.nodes[end]["latitude"], G.nodes[end]["longitude"]
-
-        ax.plot([lon1, lon2], [lat1, lat2], color='blue', linewidth=0.3, transform=ccrs.PlateCarree())
-
-    plt.title("Réseau aérien mondial avec Cartopy")
-    plt.show()
-
-
 def resolution(G, pairs_to_connect, edges, C):    
     
     # Création du modèle

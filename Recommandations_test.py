@@ -1,4 +1,4 @@
-from Recommandations import recommandations_interface
+from recommandations import recommandations_interface
 import networkx as nx
 from distance import distance
 
