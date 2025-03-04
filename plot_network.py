@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
-from data_preprocessing import data_preprocessing
+from data_processing import data_processing
 
 
 def plot_network(G):
@@ -33,5 +33,5 @@ def plot_network(G):
     plt.show()
 
 
-_, _, G = data_preprocessing("files/airports.csv", "files/pre_existing_routes.csv")
+G, _ = data_processing("files/airports.csv", "files/pre_existing_routes.csv")
 plot_network(G)
