@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
-from data_preprocessing import data_processing
+from data_processing import data_processing
 
 
 def plot_network(G):
