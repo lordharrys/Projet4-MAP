@@ -10,6 +10,11 @@ def resolution(G, pairs_to_connect, edges, C):
     # Création du modèle
     model = ConcreteModel()
 
+    for (p,q) in pairs_to_connect:
+        if not nx.has_path(G,p,q):
+            print(f"Error: No pat between {p} and {q}")
+            return None
+
     # Ici ce sont les variables binaires qui indiquent si on inclut l'arête dans notre réseau ou non
     model.x = Var(G.edges, within=Binary)
     
@@ -50,6 +55,7 @@ def resolution(G, pairs_to_connect, edges, C):
 
     solver = SolverFactory('scip')  
     solver.solve(model, tee=False)
+    solver.options['limits/absgap'] = 100000
 
     return model
 
