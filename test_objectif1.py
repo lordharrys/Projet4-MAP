@@ -10,7 +10,7 @@ from distance import distance
 
 G, edges = data_processing.data_processing("files/airports.csv", "files/pre_existing_routes.csv")
 
-G_small, filtered_routes = data_preprocessing.data_processing("files/test_airports.csv", "files/pre_existing_routes.csv")
+G_small, filtered_routes = data_processing.data_processing("files/test_airports.csv", "files/pre_existing_routes.csv")
 
 
 

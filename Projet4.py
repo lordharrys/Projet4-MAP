@@ -48,7 +48,7 @@ def resolution(G, pairs_to_connect, edges, C):
             model.add_component(f"activation_{i}_{e}", Constraint(expr=model.f[i, e] <= model.x[e]))
 
 
-    solver = SolverFactory('cbc')  
+    solver = SolverFactory('scip')  
     solver.solve(model, tee=False)
 
     return model
