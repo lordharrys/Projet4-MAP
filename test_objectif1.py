@@ -10,7 +10,7 @@ from distance import distance
 
 G, edges = data_processing.data_processing("files/airports.csv", "files/pre_existing_routes.csv")
 
-G_small, filtered_routes = data_processing.data_processing("files/airports.csv", "files/pre_existing_routes.csv")
+G_small, filtered_routes = data_preprocessing.data_processing("files/test_airports.csv", "files/pre_existing_routes.csv")
 
 
 
@@ -19,12 +19,12 @@ def test_shortest():
     pairs_to_connect = [('LOS', 'BOS')]
     model = Projet4.resolution(G, pairs_to_connect, edges, 0)
     return model.obj()
-
+cmax = 10**18
 def test_shortest_cbig():
     pairs_to_connect = [('ALG', 'DXB')]
-    filtered_routes[('ALG', 'DXB')] = 50000000000
-    filtered_routes[('DXB', 'ALG')] = 50000000000
-    model = Projet4.resolution(G_small, pairs_to_connect, filtered_routes, 100000000000)
+    edges[('ALG', 'DXB')] = 50000000000
+    edges[('DXB', 'ALG')] = 50000000000
+    model = Projet4.resolution(G, pairs_to_connect, edges,cmax)
     return model.obj()
 
 def test_direct():
@@ -44,10 +44,10 @@ def test_complex():
     model = Projet4.resolution(G, pairs_to_connect, edges, 0)    
     return model.obj()
 
-# def test_complex_c5():
-#     pairs_to_connect = [('LOS', 'BOS'), ('BKK','ADD'), ('LGW','ADD'), ('BKK','LOS'), ('LGW','BOS'), ('LGW','LOS'), ('BKK','BOS'), ('BKK','LGW'), ('LOS','ADD'), ('BOS','ADD')]
-#     model = Projet4.resolution(G, pairs_to_connect, edges, 5)    
-#     return model.obj()
+def test_complex_c5():
+    pairs_to_connect = [('YYZ','BKK'),('LHR','BKK')]
+    model = Projet4.resolution(G_small,pairs_to_connect,filtered_routes,5000000)
+    return model.obj()
 
 def test_complex2():
     # Liste aléatoire de 40 aéroports générée par une IA
@@ -110,7 +110,9 @@ class TestResolution(unittest.TestCase):
         #self.assertEqual(round(test_not_direct(),4), round(nx.shortest_path_length(G, source="LGW", target="ADD",weight='weight'),4))
         print(f"Error of the test with C = 0 and 1 pair : {abs(test_not_direct() - nx.shortest_path_length(G, source='LGW', target='ADD',weight='weight'))}")
         #self.assertEqual(round(test_shortest_c1000000000(),4), round(50000000000),4))
-        print(f"Error of the test with C = 100000000000 and 1 pair : {abs(test_shortest_cbig() -50000000000- 100000000000)}")
+        print(f"Error of the test with C = cmax and 1 pair : {abs(test_shortest_cbig() -50000000000- cmax)}")
+        #test c = 5 000 000 and 2 pairs
+        print(f"Error of the test with C = 5000000 and 2 pair : {(test_complex_c5() -5000000*2-9855600.810234353-14115511.52441033/2)}")
     
     
     def test_multiple_pairs(self):
