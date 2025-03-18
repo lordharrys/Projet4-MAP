@@ -7,6 +7,8 @@ import csv
 import pandas as pd
 from distance import distance
 
+#à ajouter : modéliser avec SIR
+
 #define a region that contains the airports in a certain perimeter around the starting airport
 def define_region(latitude,longitude,perimeter,airports):
     region = []
