@@ -71,9 +71,9 @@ def recommandations_interface(G, waiting_times, prices, J):
     # Add question and radio buttons for preference
     Question1 = tk.Label(canvas_frame, text="Quel critère est le plus important pour vous ?")
     Question1.pack()
-    tk.Radiobutton(canvas_frame, text="Distance", value="Distance", variable=preference).pack()
-    tk.Radiobutton(canvas_frame, text="Temps", value="Temps", variable=preference).pack()
-    tk.Radiobutton(canvas_frame, text="Prix", value="Prix", variable=preference).pack()
+    tk.Radiobutton(canvas_frame, text="Distance [km]", value="Distance", variable=preference).pack()
+    tk.Radiobutton(canvas_frame, text="Temps [min]", value="Temps", variable=preference).pack()
+    tk.Radiobutton(canvas_frame, text="Prix [euros]", value="Prix", variable=preference).pack()
 
     start = tk.StringVar()
     start.set("Aéroport de départ")

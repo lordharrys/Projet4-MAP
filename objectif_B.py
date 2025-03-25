@@ -1,11 +1,8 @@
-import Projet4 
 import data_processing
-import distance
-import unittest
 import networkx as nx
-import csv
-import pandas as pd
-from distance import distance
+import ndlib.models.ModelConfig as mc
+import ndlib.models.epidemics as ep
+
 
 #à ajouter : modéliser avec SIR
 
@@ -55,10 +52,55 @@ def objectif_B(G):
         G.remove_node(airport)
     return G
 
-G_small, filtered_routes = data_processing.data_processing("files/airports.csv", "files/pre_existing_routes.csv")
-
-G_new=(objectif_B(G_small))
-print(G_new.nodes)
 
 
+### SIR model ###
+G_SIR, routes = data_processing.data_processing("files/airports.csv", "files/pre_existing_routes.csv")
+model = ep.SIRModel(G_SIR)
 
+cfg = mc.Configuration()
+cfg.add_model_parameter('beta', 0.01)
+cfg.add_model_parameter('gamma', 0.005)
+cfg.add_model_parameter("fraction_infected", 0.05)
+model.set_initial_status(cfg)
+
+removed_nodes = set()
+fermés = []
+iterations = []
+for t in range(25):
+    iteration = model.iteration()
+    
+    iterations.append(iteration)
+objectif_B(G_SIR)
+for t in range(50):  
+    iteration = model.iteration()
+    
+    # Filtrer les nœuds supprimés
+    iteration["status"] = {k: v for k, v in iteration["status"].items() if k not in removed_nodes}
+    iterations.append(iteration)
+
+    # Récupérer les aéroports infectés et les "fermer"
+    infected_nodes = [node for node, status in iteration["status"].items() if status == 1]  
+    if len(infected_nodes) == 0:
+        extinction_time = t
+        break 
+    removed_nodes.update(infected_nodes)  # Ajouter les aéroports fermés à la liste
+    fermés.extend(infected_nodes)  # Ajouter les aéroports fermés à la liste
+
+    # Marquer les nœuds comme "Recovered" pour qu'ils ne propagent plus la maladie
+    for node in infected_nodes:
+        model.status[node] = 2  # 2 = Recovered (fermé et immunisé)
+
+    print(f"Itération {t}: {len(infected_nodes)} aéroports fermés")
+print(f"Nombre d'aéroports fermés : {len(fermés)}")
+print(f"Temps d'extinction : {extinction_time}")
+trends = model.build_trends(iterations)
+
+
+import matplotlib.pyplot as plt
+from ndlib.viz.mpl.DiffusionTrend import DiffusionTrend
+
+viz = DiffusionTrend(model, trends)
+viz.plot()
+plt.savefig("sir_simulation.png")  # Sauvegarde le graphique
+plt.close() 
