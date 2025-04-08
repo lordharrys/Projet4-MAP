@@ -2,9 +2,9 @@ import data_processing
 import networkx as nx
 import ndlib.models.ModelConfig as mc
 import ndlib.models.epidemics as ep
+import matplotlib.pyplot as plt
+from ndlib.viz.mpl.DiffusionTrend import DiffusionTrend
 
-
-#à ajouter : modéliser avec SIR
 
 #define a region that contains the airports in a certain perimeter around the starting airport
 def define_region(latitude,longitude,perimeter,airports):
@@ -55,52 +55,53 @@ def objectif_B(G):
 
 
 ### SIR model ###
-G_SIR, routes = data_processing.data_processing("files/airports.csv", "files/pre_existing_routes.csv")
-model = ep.SIRModel(G_SIR)
+def SIR_model():
+    G_SIR, routes = data_processing.data_processing("files/airports.csv", "files/pre_existing_routes.csv")
+    model = ep.SIRModel(G_SIR)
 
-cfg = mc.Configuration()
-cfg.add_model_parameter('beta', 0.01)
-cfg.add_model_parameter('gamma', 0.005)
-cfg.add_model_parameter("fraction_infected", 0.05)
-model.set_initial_status(cfg)
+    cfg = mc.Configuration()
+    cfg.add_model_parameter('beta', 0.01)
+    cfg.add_model_parameter('gamma', 0.005)
+    cfg.add_model_parameter("fraction_infected", 0.05)
+    model.set_initial_status(cfg)
 
-removed_nodes = set()
-fermés = []
-iterations = []
-for t in range(25):
-    iteration = model.iteration()
-    
-    iterations.append(iteration)
-objectif_B(G_SIR)
-for t in range(50):  
-    iteration = model.iteration()
-    
-    # Filtrer les nœuds supprimés
-    iteration["status"] = {k: v for k, v in iteration["status"].items() if k not in removed_nodes}
-    iterations.append(iteration)
+    removed_nodes = set()
+    fermés = []
+    iterations = model.iteration_bunch(75)
+    infected_nodes = set()
+    extinction_time = 0
 
-    # Récupérer les aéroports infectés et les "fermer"
-    infected_nodes = [node for node, status in iteration["status"].items() if status == 1]  
-    if len(infected_nodes) == 0:
-        extinction_time = t
-        break 
-    removed_nodes.update(infected_nodes)  # Ajouter les aéroports fermés à la liste
-    fermés.extend(infected_nodes)  # Ajouter les aéroports fermés à la liste
+    for t in iterations[:25]:
+        infected_nodes.update([node for node, status in t["status"].items() if status == 1])
 
-    # Marquer les nœuds comme "Recovered" pour qu'ils ne propagent plus la maladie
-    for node in infected_nodes:
-        model.status[node] = 2  # 2 = Recovered (fermé et immunisé)
+    # Fermer les aéroports les moins centraux
+    closeness_centrality = nx.closeness_centrality(G_SIR)
+    sorted_closeness = sorted(closeness_centrality, key=closeness_centrality.get)
 
-    print(f"Itération {t}: {len(infected_nodes)} aéroports fermés")
-print(f"Nombre d'aéroports fermés : {len(fermés)}")
-print(f"Temps d'extinction : {extinction_time}")
-trends = model.build_trends(iterations)
+    airports_to_remove = sorted_closeness[:15]
+    for airport in airports_to_remove:
+        model.status[airport] = 2
 
+    G_SIR.remove_nodes_from(airports_to_remove)  # Supprime réellement du graphe
 
-import matplotlib.pyplot as plt
-from ndlib.viz.mpl.DiffusionTrend import DiffusionTrend
+    # Continuer la simulation après la fermeture
+    for i, t in enumerate(iterations[25:], start=25):
+        infected_nodes.update([node for node, status in t["status"].items() if status == 1])
+        if not infected_nodes:  # Si plus d'infectés
+            extinction_time = i
+            break  # Arrêter la simulation
 
-viz = DiffusionTrend(model, trends)
-viz.plot()
-plt.savefig("sir_simulation.png")  # Sauvegarde le graphique
-plt.close() 
+        removed_nodes.update(infected_nodes)
+        fermés.extend(infected_nodes)
+
+    print(f"Nombre d'aéroports fermés : {len(fermés)}")
+    print(f"Temps d'extinction : {extinction_time}")
+
+    trends = model.build_trends(iterations)
+    viz = DiffusionTrend(model, trends)
+    viz.plot()
+    plt.savefig("sir_simulation.png")
+    plt.show()
+    plt.close()
+
+SIR_model()
