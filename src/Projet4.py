@@ -3,7 +3,6 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from pyomo.environ import *
 import builtins
-import distance
 
 def resolution(G, pairs_to_connect, edges, C):    
     

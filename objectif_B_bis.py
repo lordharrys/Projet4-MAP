@@ -1,11 +1,11 @@
-import Projet4 
-import data_processing
-import distance
+import src.Projet4 as Projet4 
+import src.data_processing as data_processing
+import src.distance as distance
 import unittest
 import networkx as nx
 import csv
 import pandas as pd
-from distance import distance
+from src.distance import distance
 
 """
 The goal of this objectif is to remove the airports that are the disease's home.
