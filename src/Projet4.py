@@ -3,7 +3,6 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from pyomo.environ import *
 import builtins
-import distance
 
 def resolution(G, pairs_to_connect, edges, C):    
     
@@ -17,21 +16,23 @@ def resolution(G, pairs_to_connect, edges, C):
 
     # Ici ce sont les variables binaires qui indiquent si on inclut l'arête dans notre réseau ou non
     model.x = Var(G.edges, within=Binary)
+
+
     
     # Variable qui représente la distance entre chaque paire d'aéroports qu'on veut lier
     model.d = Var(pairs_to_connect, within=NonNegativeReals)
 
     # Variable pour s'assurer qu'on inclut bien un chemin entre les paires qu'on veut lier
     # Une variable par noeud par paire à lier
-    model.f = Var(pairs_to_connect, G.edges, within=NonNegativeReals)
+    model.f = Var(pairs_to_connect, G.edges, within=Binary)
 
     # Création de la fonction objectif : somme des distances des chemins entre paires + C * nbre d'arêtes
-    model.obj = Objective(expr=builtins.sum(model.d[p] for p in pairs_to_connect)/len(pairs_to_connect) + C*builtins.sum(model.x[e] for e in G.edges),sense=minimize)
+    model.obj = Objective(expr=builtins.sum(model.d[p]*10**7 for p in pairs_to_connect)/len(pairs_to_connect) + C*builtins.sum(model.x[e] for e in G.edges),sense=minimize)
     
     # On ajoute une contrainte pour chaque paire qui dit que d >= somme des distances du chemin qu'on a choisi pour 
     # les lier
     for i in pairs_to_connect:
-        model.add_component(f"shortest_path_{i}", Constraint(expr=model.d[i] == builtins.sum(edges[e] * model.f[i, e] for e in G.edges)))
+        model.add_component(f"shortest_path_{i}", Constraint(expr=model.d[i] == builtins.sum(edges[e] * model.f[i, e] / 10**7 for e in G.edges)))
 
     # Pour chaque paire on dit que la somme des chemins entrants = sortants sauf si on est au noeud dans la paire 
     # dans ce cas tu dois sortir plus que tu rentres et vice versa
@@ -53,10 +54,44 @@ def resolution(G, pairs_to_connect, edges, C):
             model.add_component(f"activation_{i}_{e}", Constraint(expr=model.f[i, e] <= model.x[e]))
 
 
-    solver = SolverFactory('scip')  
+    solver = SolverFactory('gurobi')
+
+
+
+
+    # 🔹 1. Mode de recherche rapide
+
+    # 🔹 3. Nombre de threads (à ajuster selon ton processeur)
+    solver.options['Threads'] = 4  # Remplace 8 par le max trouvé avec grbprobe
+
+
+    # 🔹 5. Désactiver la symétrie (utile si trop de variables binaires)
+
+    # 🔹 6. Réduire la tolérance d’optimalité
+
+    
     solver.solve(model, tee=False)
-    solver.options['limits/absgap'] = 100000
+
 
     return model
+
+
+def build_graph_from_solution(model, P_edges, old_G):
+    """
+    Construis le nouveau graphe à partir de la solution du modèle de Pyomo
+    @param model: le modèle de Pyomo
+    @param P_edges: le dictionnaire des poids des arêtes
+    @param old_G: le graphe initial
+    @return: le nouveau graphe
+    """
+    G = nx.DiGraph()
+    
+    for e in old_G.edges:
+        if model.x[e].value == 1:
+            print("Adding edge:", (e[0], e[1]))
+
+            G.add_edge(e[0], e[1], weight=P_edges[e])
+    return G
+
 
 

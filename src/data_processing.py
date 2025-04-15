@@ -1,6 +1,6 @@
 import pandas as pd
 import networkx as nx
-from distance import distance
+from src.distance import distance
 
 
 def data_processing(file, route):
@@ -22,7 +22,7 @@ def data_processing(file, route):
             lon1 = G.nodes[start]["longitude"]
             lat2 = G.nodes[end]["latitude"]
             lon2 = G.nodes[end]["longitude"]
-            dist = distance(lat1, lon1, lat2, lon2)  
+            dist = distance(lat1, lat2, lon1,lon2)  
             G.add_edge(start, end, weight=dist)
             edges[(start, end)] = dist  
     return G, edges

@@ -1,9 +1,9 @@
 from Recommandations import recommandations_interface
 import networkx as nx
-import data_processing
-import Projet4
+import src.data_processing as data_processing
+import src.Projet4 as Projet4
 import pandas as pd
-import distance
+import src.distance as distance
 
 G, edges = data_processing.data_processing("files/airports.csv", "files/pre_existing_routes.csv")
 
