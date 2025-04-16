@@ -4,29 +4,31 @@ import random
 import numpy as np
 import matplotlib.pyplot as plt
 import data_processing as data_processing
-import Projet4 as Projet4
+import optimisation as optimisation
 
 
-def evaluate(solution, J, C):
+def evaluate(solution, J, C, P,penalty=1e6):
     """
-    Évaluation d'une solution avec Dijkstra par source et cache basé sur tuple(solution)
+    Évaluation d'une solution avec Dijkstra par source,
+    pénalisation locale pour les trajets impossibles.
     """
-    G = nx.DiGraph([(start, end, {"weight" : weight}) for start , end, weight in solution])
-  
-     
-    sources = {src for src, dest in J}
-    try:
-        shortest_paths = {src: nx.single_source_dijkstra_path_length(G, src, weight='weight') for src in sources}
-    except:
-        return 1e9
+    G = nx.DiGraph([(start, end, {"weight": P[(start, end)]}) for start, end in solution])
 
-    total_distance = 0
-    for src,dest in J:
+    # Construction des chemins les plus courts par source, avec gestion d'échec
+    shortest_paths = {}
+    for src in {s for s, _ in J}:
         try:
-            total_distance += shortest_paths[src][dest]
+            shortest_paths[src] = nx.single_source_dijkstra_path_length(G, src, weight='weight')
         except:
-                return 1e9  # si un trajet est impossible
-    
+            shortest_paths[src] = {}  # Aucun chemin atteignable depuis cette source
+
+    # Évaluation cumulée
+    total_distance = 0
+    for src, dest in J:
+        if dest in shortest_paths.get(src, {}):
+            total_distance += shortest_paths[src][dest]
+        else:
+            total_distance += penalty  # pénalisation du trajet manquant
 
     return total_distance / len(J) + C * len(solution)
 
@@ -39,28 +41,32 @@ def generate_initial_population(pop_size, P):
 
 def crossover(parent1, parent2):
     """
-    Croisement entre deux parents. 
+    Croisement à deux points : prend un segment du parent2 et le réinsère dans parent1.
     """
-    split = random.randint(1, min(len(parent1), len(parent2))-1)
-    child = list(set(parent1[:split] + parent2[split:]))
-    return child
+    if len(parent1) < 2 or len(parent2) < 2:
+        return parent1.copy()
 
+    idx1 = random.randint(0, min(len(parent1), len(parent2)) - 2)
+    idx2 = random.randint(idx1 + 1, min(len(parent1), len(parent2)) - 1)
+
+    segment = parent2[idx1:idx2]
+    child = [e for e in parent1 if e not in segment]
+    child[idx1:idx1] = segment
+    return list(dict.fromkeys(child))  # Évite les doublons
 
 
 def mutate(individual, P, mutation_rate=0.1):
     """
-    Mutation d'un individu sous forme de liste d'arêtes.
-    Ajoute ou retire une arête avec une certaine probabilité.
+    Mutation : remplace plusieurs arêtes aléatoirement.
     """
     if random.random() < mutation_rate:
-        if random.random() < 0.5 and len(individual) > 1:
-            # Suppression aléatoire d'une arête existante
-            individual.remove(random.choice(individual))
-        else:
-            # Ajout d'une arête aléatoire non déjà présente
-            available_edges = list(set(P) - set(individual))
-            if available_edges:
-                individual.append(random.choice(available_edges))
+        n = max(1, len(individual) // 10)  # 10% des gènes
+        for _ in range(n):
+            if individual:
+                individual.remove(random.choice(individual))
+            remaining = list(set(P) - set(individual))
+            if remaining:
+                individual.append(random.choice(remaining))
     return individual
 
 def tournament_selection(population, scores, k=5):
@@ -68,20 +74,17 @@ def tournament_selection(population, scores, k=5):
     selected.sort(key=lambda x: x[1])
     return selected[0][0]
 
-def genetic_algorithm(P, J, C, generations=100, pop_size=100):
+def genetic_algorithm(P, J, C, edges, generations=100, pop_size=100):
     """
     Algorithme génétique pour optimiser le réseau de routes (individus = liste d'arêtes).
     """
     population = generate_initial_population(pop_size, P)
-    print("Population initiale générée.")
     best_scores = []
 
     for gen in range(generations):
-        print(f"Génération {gen + 1}")
 
-        # Évaluation avec cache
         fitnesses_with_individuals = [
-            (evaluate(ind, J, C), ind)
+            (evaluate(ind, J, C, edges), ind)
             for ind in population
         ]
         fitnesses_with_individuals.sort(key=lambda x: x[0])
@@ -109,14 +112,14 @@ def genetic_algorithm(P, J, C, generations=100, pop_size=100):
     best_cost = scores[0]
 
     # Affichage de l'évolution
-    plt.plot(best_scores)
-    plt.title("Évolution du coût au fil des générations")
-    plt.xlabel("Génération")
-    plt.ylabel("Coût")
-    plt.grid()
-    plt.show()
+    #plt.plot(best_scores)
+    #plt.title("Évolution du coût au fil des générations")
+    #plt.xlabel("Génération")
+    #plt.ylabel("Coût")
+    #plt.grid()
+    #plt.show()
 
-    return best_cost, best
+    return best_cost, best, best_scores
 
 
 

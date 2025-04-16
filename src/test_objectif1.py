@@ -1,6 +1,6 @@
-import Projet4 as Projet4 
+import src.optimisation as optimisation 
 import data_processing as data_processing
-import src.distance as distance
+import distance as distance
 import unittest
 import networkx as nx
 import csv
@@ -80,37 +80,37 @@ G_test, edges_test = test_network()
 
 def test_shortest():
     pairs_to_connect = [('LOS', 'BOS')]
-    model = Projet4.resolution(G, pairs_to_connect, edges, 0)
+    model = optimisation.resolution(G, pairs_to_connect, edges, 0)
     return model
 cmax = 10**18
 def test_shortest_cbig():
     pairs_to_connect = [('ALG', 'DXB')]
     edges[('ALG', 'DXB')] = 50000000000
     edges[('DXB', 'ALG')] = 50000000000
-    model = Projet4.resolution(G, pairs_to_connect, edges,cmax)
+    model = optimisation.resolution(G, pairs_to_connect, edges,cmax)
     return model.obj()
 
 def test_direct():
     pairs_to_connect = [('BKK','ADD')]
 
-    model = Projet4.resolution(G, pairs_to_connect, edges, 1)
+    model = optimisation.resolution(G, pairs_to_connect, edges, 1)
     
     return model
 
 def test_not_direct(C=0):
     current = []
     pairs_to_connect = [('LGW','ADD'), ('LGW','BOS'), ('LGW','LOS'), ('LGW','BKK'), ('BKK','LOS'), ('BKK','BOS'), ('BKK','ADD'), ('BOS','LOS'), ('BOS','ADD'), ('LOS','ADD')]
-    model,current = new_resolution.resolution(G, pairs_to_connect, edges, C,current, len(pairs_to_connect))
+    model,current = optimisation.resolution(G, pairs_to_connect, edges, C,current, len(pairs_to_connect))
     return model.obj()
 
 def test_complex():
     pairs_to_connect = [('LOS', 'BOS'), ('BKK','ADD'), ('LGW','ADD'), ('BKK','LOS'), ('LGW','BOS'), ('LGW','LOS'), ('BKK','BOS'), ('BKK','LGW'), ('LOS','ADD'), ('BOS','ADD')]
-    model = Projet4.resolution(G, pairs_to_connect, edges, 0)    
+    model = optimisation.resolution(G, pairs_to_connect, edges, 0)    
     return model.obj()
 
 def test_complex_c5():
     pairs_to_connect = [('YYZ','BKK'),('LHR','BKK')]
-    model = Projet4.resolution(G_small,pairs_to_connect,filtered_routes,5000000)
+    model = optimisation.resolution(G_small,pairs_to_connect,filtered_routes,5000000)
     return model.obj()
 
 
@@ -128,7 +128,7 @@ def test_bcp_bcp(C=0):
         a1, a2 = random.sample(airport_ids, 2)  # Sélectionner deux aéroports différents
         pairs.add((a1, a2))
     pairs_list = list(pairs)
-    model = Projet4.resolution(G, pairs_list, edges, C)
+    model = optimisation.resolution(G, pairs_list, edges, C)
     sum = 0
     for i,j in pairs_list:
         sum += nx.shortest_path_length(G, source=i, target=j,weight='weight')
@@ -149,7 +149,7 @@ def test_bcp_bcp_bcp(C=0):
         pairs.add((a1, a2))
     pairs_list = list(pairs)
     print("Pairs list generated")
-    model = Projet4.resolution(G, pairs_list, edges, C)
+    model = optimisation.resolution(G, pairs_list, edges, C)
     sum = 0
     #for i,j in pairs_list:
     #    sum += nx.shortest_path_length(G, source=i, target=j,weight='weight')
@@ -157,7 +157,7 @@ def test_bcp_bcp_bcp(C=0):
     return model.obj()
 
 def test_optimality():
-    model = Projet4.resolution(G_test, [("DEF", "MNO")], edges_test, 50000)
+    model = optimisation.resolution(G_test, [("DEF", "MNO")], edges_test, 50000)
     return model.obj()
 
 class TestResolution(unittest.TestCase):
@@ -169,7 +169,7 @@ class TestResolution(unittest.TestCase):
         start = time.time()
         self.assertAlmostEqual(round(test_direct().obj(),4), round(nx.shortest_path_length(G, source="BKK", target="ADD",weight='weight'),4)+1)
         print(f"Test with C = 1 and 1 pair in {round(time.time()-start, 4)} seconds")
-        G_solution = Projet4.build_graph_from_solution(test_direct(), edges, G)     
+        G_solution = optimisation.build_graph_from_solution(test_direct(), edges, G)     
 
 
         start = time.time()

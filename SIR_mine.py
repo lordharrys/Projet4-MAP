@@ -2,7 +2,7 @@ import networkx as nx  # Importation de NetworkX pour la gestion des graphes
 import numpy as np  # Importation de NumPy pour les calculs numériques
 import matplotlib.pyplot as plt  # Importation de Matplotlib pour l'affichage des graphes
 import random  # Importation du module random pour générer des nombres aléatoires
-from data_processing import data_processing
+from src.data_processing import data_processing
 
 # Définition des paramètres du modèle
 

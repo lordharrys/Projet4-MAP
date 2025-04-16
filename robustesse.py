@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from pyomo.environ import *
 from itertools import combinations
 import builtins
-import distance
+import src.distance as distance
 
 def robustesse(model, G):
     H = nx.DiGraph()  
