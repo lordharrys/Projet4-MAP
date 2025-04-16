@@ -51,7 +51,7 @@ def new_network(airports, pre_existing_routes, J, C):
         
     num_genes = len(P)
     ga_instance = pygad.GA(
-        num_generations=100,
+        num_generations=200,
         num_parents_mating=40,
         fitness_func=fitness_func,
         sol_per_pop=100,

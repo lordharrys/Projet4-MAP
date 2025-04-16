@@ -125,4 +125,31 @@ def plot_fitness():
     plt.savefig("fitness.png")
 
 
-plot_fitness()
+def test_correcteness():
+    file = "files/airports.csv"
+    route = "files/pre_existing_routes.csv"
+    G, edges = data_processing.data_processing(file, route)
+    P = []
+    for start, end in edges.keys():
+        P.append((start, end))
+    pairs = generate_unique_pairs(list(G.nodes()), 100, directed=True)
+    C = 0
+
+    _,_,best_scores = genetique.genetic_algorithm(P, pairs, C, edges)
+    _,_,best_scores2 = test_pygad.new_network(file, route, pairs, C)
+    print("Meilleur coût avec l'algorithme génétique :", best_scores[-1])
+    best = optimisation.resolution(G, pairs, edges, C)
+    best_cost = best.obj()
+    plot_best = [best_cost for i in range(len(best_scores))]
+    plt.plot(best_scores, label='Algorithme génétique')
+    plt.plot(plot_best, label='Optimisation solver')
+    plt.plot(-np.array(best_scores2), label='PyGAD')
+    #plt.plot(min_borne, label='Borne inférieure')
+    plt.title("Évolution du coût au fil des générations")
+    plt.xlabel("Génération")
+    plt.ylabel("Coût")
+    plt.grid()
+    plt.legend()
+    plt.show()
+
+test_correcteness()
