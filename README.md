@@ -30,6 +30,50 @@
     └── test_pygad.py
 ```
 
+### genetique.py 
+
+Contient toutes les fonctions nécessaires pour l'algorithme génétique. 
+
+
+### distance.py
+Contient la fonction distance qui calcule la distance entre 2 points sur la carte
+
+### optimisation.py
+Résolution de l'objectif 1 via un solver d'optimisation, nécessite:
+- pyomo
+- un solver d'optimisation (ex: cbc, scip, gurobi,...)
+
+Il n'est pas nécessaire dans la résolution finale de **new_network**
+
+### plot_network.py
+Permet d'afficher le réseau sur une carte du monde. 
+
+Arguments :
+- G : graphe networkx du réseau
+- airports.csv : csv contenant les informations des aéroports
+
+Nécessite:
+- cartopy
+
+### interface.py
+
+Code pour l'interface streamlite.
+
+Nécessite :
+- streamlite
+- cartopy
+
+### data_processing.py
+
+Crée un graphe networkx à partir des fichiers du projet.
+
+**Arguments:**
+- airports.csv
+- pre_existing_routes.csv
+
+### test_pygad.py
+
+Implémentation de l'algorithme génétique utilisant la librairie pygad. Encore une fois cette implémentation n'étant pas celle retenue, il n'est pas nécessaire pour le projet.
 
 ## new_network
 
