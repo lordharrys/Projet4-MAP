@@ -2,9 +2,8 @@ import pandas as pd
 import networkx as nx
 import random
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import data_processing as data_processing
-import optimisation as optimisation
 
 
 def evaluate(solution, J, C, P,penalty=1e6):
@@ -74,6 +73,8 @@ def tournament_selection(population, scores, k=5):
     selected.sort(key=lambda x: x[1])
     return selected[0][0]
 
+
+
 def genetic_algorithm(P, J, C, edges, generations=200, pop_size=100):
     """
     Algorithme génétique pour optimiser le réseau de routes (individus = liste d'arêtes).
@@ -118,7 +119,6 @@ def genetic_algorithm(P, J, C, edges, generations=200, pop_size=100):
     #plt.ylabel("Coût")
     #plt.grid()
     #plt.show()
-
     return best_cost, best, best_scores
 
 

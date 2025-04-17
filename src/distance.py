@@ -13,4 +13,4 @@ def distance(lat1, lat2, lon1, lon2):
     
     distance = R * math.acos(math.sin(lat1_rad) * math.sin(lat2_rad) +
                              math.cos(lat1_rad) * math.cos(lat2_rad) * math.cos(lon2_rad - lon1_rad))
-    return int(distance/1000)  # in 1000 km
+    return int(distance/1000)  
