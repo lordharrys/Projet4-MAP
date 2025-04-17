@@ -95,10 +95,8 @@ ou si vous utilisez anaconda:
 conda install <library>
 ``````
 
-Maintenant pour exécuter cette fonction il faut tout simplement taper cette commande:
-`````
-python main.py <airports.csv> <pre_existing_routes.csv> <wanted_journeys.csv> <C>
-`````
+Maintenant pour exécuter cette fonction il suffit d'exécuter le script **new_network.py**
+
 
 ## Interface de recommandations de vols
 
@@ -130,3 +128,6 @@ streamlit run src/interface.py
 Cela lancera l'interface avec les aéroports et tous les vols possibles qui nous ont été donnés lors du projet. 
 
 **Attention l'interface se lancera dans votre navigateur, il faudra donc peut-être confirmer l'autorisation de streamlit pour utiliser votre navigateur.** 
+
+***L'interface est également disponible via le lien suivant:***
+https://lepl1507g02.streamlit.app
