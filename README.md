@@ -75,7 +75,7 @@ Crée un graphe networkx à partir des fichiers du projet.
 
 Implémentation de l'algorithme génétique utilisant la librairie pygad. Encore une fois cette implémentation n'étant pas celle retenue, il n'est pas nécessaire pour le projet.
 
-## new_network
+## Nouveau réseau aérien
 
 ### Librairies nécessaires
 
