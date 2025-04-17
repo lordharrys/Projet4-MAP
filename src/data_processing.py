@@ -8,6 +8,11 @@ def data_processing(file, route):
     routes = pd.read_csv(route)
 
     G = nx.DiGraph()
+    
+    #For each airport, add a node to the graph with the following attributes:
+    # name, city, country, latitude, longitude
+    # For each route, add an edge to the graph with the following attributes:
+    # ID_start, ID_end, weight= distance
 
     for _, row in airports.iterrows():
         G.add_node(row["ID"], name=row["name"], city=row["city"], country=row["country"], latitude=row["latitude"], longitude=row["longitude"])
@@ -23,6 +28,6 @@ def data_processing(file, route):
             lat2 = G.nodes[end]["latitude"]
             lon2 = G.nodes[end]["longitude"]
             dist = distance(lat1, lat2, lon1,lon2)  
-            G.add_edge(start, end, weight=dist)
+            G.add_edge(start, end, weight=dist)      
             edges[(start, end)] = dist  
     return G, edges

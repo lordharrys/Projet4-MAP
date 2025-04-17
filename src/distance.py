@@ -2,8 +2,7 @@ import math
 
 
 def distance(lat1, lat2, lon1, lon2):
-    """
-    """
+   
    
     R = 6378137.0
     lat1_rad = math.radians(lat1)
