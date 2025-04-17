@@ -1,5 +1,36 @@
 # Projet LEPL1507 Groupe 2
 ## Structure du projet
+
+```
+├── README.md
+├── Recommandations.py
+├── Recommandations_test.py
+├── SIR_mine.py
+├── files
+│   ├── airports.csv
+│   ├── capacities_airports.csv
+│   ├── capacities_connexions.csv
+│   ├── pre_existing_routes.csv
+│   ├── prices.csv
+│   ├── simulation_plots
+│   ├── test_airports.csv
+│   └── waiting_times.csv
+├── objectif_B.py
+├── robustesse.py
+└── src
+    ├── benchmark.py
+    ├── data_processing.py
+    ├── distance.py
+    ├── genetique.py
+    ├── interface.py
+    ├── new_network.py
+    ├── optimisation.py
+    ├── plot_network.py
+    ├── test_objectif1.py
+    └── test_pygad.py
+```
+
+
 ## new_network
 
 ### Librairies nécessaires
