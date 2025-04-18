@@ -6,7 +6,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
-from data_processing import data_processing
+from src.data_processing import data_processing
 
 
 def plot_solution(G,solution):

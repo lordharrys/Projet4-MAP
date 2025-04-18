@@ -4,7 +4,7 @@ import random
 import numpy as np
 import matplotlib.pyplot as plt
 import data_processing as data_processing
-import Projet4 as Projet4
+import optimisation as optimisation
 import pygad
 import genetique 
 
@@ -24,35 +24,35 @@ def new_network(airports, pre_existing_routes, J, C):
     P = []
     for start, end in P_edges.keys():
         P.append((start, end, P_edges[(start, end)]))
+    
+    penalty = 10**6
 
     def fitness_func(ga_instance, solution, solution_idx):
         G = build_graph(solution, P)
 
-        try:
-            sources = {a for a, _ in pairs}
-            dijkstra_results = {
-                a: nx.single_source_dijkstra_path_length(G, a, weight='weight') for a in sources
-            }
-        except:
-            return -1e8  # grosse pénalité
-
-        total_distance = 0
-        for a, b in pairs:
+            # Construction des chemins les plus courts par source, avec gestion d'échec
+        shortest_paths = {}
+        for src in {s for s, _ in J}:
             try:
-                total_distance += dijkstra_results[a][b]
+                shortest_paths[src] = nx.single_source_dijkstra_path_length(G, src, weight='weight')
             except:
-                return -1e8  # pénalité si pas de chemin
+                shortest_paths[src] = {}  # Aucun chemin atteignable depuis cette source
 
-        avg_distance = total_distance / len(pairs)
-        total_edges = sum(solution)
+        # Évaluation cumulée
+        total_distance = 0
+        for src, dest in J:
+            if dest in shortest_paths.get(src, {}):
+                total_distance += shortest_paths[src][dest]
+            else:
+                total_distance += penalty  # pénalisation du trajet manquant
 
-        fitness = - (avg_distance + C * total_edges)  # ⚠️ NEGATIF car PyGAD MAXIMISE
-        return fitness
-    
+        return -total_distance / len(J) - C * len(solution)
+
+        
     num_genes = len(P)
     ga_instance = pygad.GA(
-        num_generations=100,
-        num_parents_mating=30,
+        num_generations=200,
+        num_parents_mating=40,
         fitness_func=fitness_func,
         sol_per_pop=100,
         num_genes=num_genes,
@@ -60,57 +60,21 @@ def new_network(airports, pre_existing_routes, J, C):
         gene_space=[0, 1],
         mutation_type="random",
         mutation_probability=0.1,
-        crossover_type="single_point",
-        stop_criteria="saturate_20"
+        crossover_type="uniform",
+        stop_criteria=None,
+        keep_elitism=5
     )
     ga_instance.run()
-    ga_instance.plot_fitness()
+    #ga_instance.plot_fitness()
 
     solution, solution_fitness, _ = ga_instance.best_solution()
     selected_edges = [P[i] for i in range(len(solution)) if solution[i] == 1]
-    return selected_edges, -solution_fitness
+    return selected_edges, -solution_fitness, ga_instance.best_solutions_fitness
 
 
-# Import des données
-file = "files/airports.csv"
-route = "files/pre_existing_routes.csv"
-G, P_edges = data_processing.data_processing(file, route)
-P = []
-for start, end in P_edges.keys():
-    P.append((start, end, P_edges[(start, end)]))
-#print("Noeuds du graphe :", G.nodes())
-G_copy = G.copy()
-
-# Liste des trajets à satisfaire
-number_of_pairs = 1000
 
 
-def generate_unique_pairs(nodes, number_of_pairs, directed=True):
-    seen = set()
-    pairs = []
 
-    while len(pairs) < number_of_pairs:
-        a, b = random.sample(nodes, 2)
-        pair = (a, b) if directed else tuple(sorted((a, b)))
-        if pair not in seen:
-            seen.add(pair)
-            pairs.append((a, b))  # garder (a,b) même si non orienté pour compatibilité
-    return pairs
-# Lancer l'algorithme génétique
-C = 1000
-pairs = generate_unique_pairs(list(G.nodes()), number_of_pairs, directed=True)
 
-_, cost = new_network(file, route, pairs, C)
-print("Coût total optimisé avec PyGAD :", cost)
-
-best_cost, selected_edges = genetique.genetic_algorithm(P, pairs, C)
-print("Meilleur coût avec l'algorithme génétique :", best_cost)
-sum = 0
-for start, end in pairs:
-    sum += nx.shortest_path_length(G_copy, start, end, weight='weight')
-sum /= len(pairs)
-print("Coût total avant optimisation :", sum+len(selected_edges)*C)
-#model = Projet4.resolution(G_copy, pairs, P_edges, C)
-#print("Coût total optimisé avec le modèle :", model.obj())
 
 

@@ -2,16 +2,20 @@ import pandas as pd
 import networkx as nx
 import random
 import numpy as np
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import data_processing as data_processing
+import optimisation as optimisation
 
 
-def evaluate(solution, J, C, P,penalty=1e6):
+def evaluate(solution, J, C, P, kept, penalty=1e6):
     """
     Évaluation d'une solution avec Dijkstra par source,
     pénalisation locale pour les trajets impossibles.
+    AJout de pénalisations en vue de garantir une certaine
+    robustesse.
     """
-    G = nx.DiGraph([(start, end, {"weight": P[(start, end)]}) for start, end in solution])
+    G = nx.DiGraph([(start, end, {"weight": P[(start, end)]}) for start, end in solution] + [(start, end, {"weight": P[(start, end)]}) for start, end in kept])
+    penalty_cost = 0
 
     # Construction des chemins les plus courts par source, avec gestion d'échec
     shortest_paths = {}
@@ -27,15 +31,14 @@ def evaluate(solution, J, C, P,penalty=1e6):
         if dest in shortest_paths.get(src, {}):
             total_distance += shortest_paths[src][dest]
         else:
-            total_distance += penalty  # pénalisation du trajet manquant
+            penalty_cost += penalty  # pénalisation du trajet manquant
 
-    return total_distance / len(J) + C * len(solution)
+
+    return total_distance / len(J) + C * (len(solution)+len(kept)) + penalty_cost
 
 
 def generate_initial_population(pop_size, P):
     return [random.sample(P, random.randint(len(P)//4, len(P))) for i in range(pop_size)]
-
-
 
 
 def crossover(parent1, parent2):
@@ -68,24 +71,25 @@ def mutate(individual, P, mutation_rate=0.1):
                 individual.append(random.choice(remaining))
     return individual
 
+
 def tournament_selection(population, scores, k=5):
     selected = random.sample(list(zip(population, scores)), k)
     selected.sort(key=lambda x: x[1])
     return selected[0][0]
 
 
-
-def genetic_algorithm(P, J, C, edges, generations=200, pop_size=100):
+def genetic_algorithm(P, J, C, edges, kept, generations=10, pop_size=20):
     """
     Algorithme génétique pour optimiser le réseau de routes (individus = liste d'arêtes).
     """
     population = generate_initial_population(pop_size, P)
     best_scores = []
+    J = np.array(J)
 
     for gen in range(generations):
 
         fitnesses_with_individuals = [
-            (evaluate(ind, J, C, edges), ind)
+            (evaluate(ind, J, C, edges, kept), ind)
             for ind in population
         ]
         fitnesses_with_individuals.sort(key=lambda x: x[0])
@@ -112,17 +116,4 @@ def genetic_algorithm(P, J, C, edges, generations=200, pop_size=100):
     best = population[0]
     best_cost = scores[0]
 
-    # Affichage de l'évolution
-    #plt.plot(best_scores)
-    #plt.title("Évolution du coût au fil des générations")
-    #plt.xlabel("Génération")
-    #plt.ylabel("Coût")
-    #plt.grid()
-    #plt.show()
     return best_cost, best, best_scores
-
-
-
-
-
-

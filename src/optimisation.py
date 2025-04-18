@@ -55,20 +55,6 @@ def resolution(G, pairs_to_connect, edges, C):
 
 
     solver = SolverFactory('gurobi')
-
-
-
-
-    # 🔹 1. Mode de recherche rapide
-
-    # 🔹 3. Nombre de threads (à ajuster selon ton processeur)
-    solver.options['Threads'] = 4  # Remplace 8 par le max trouvé avec grbprobe
-
-
-    # 🔹 5. Désactiver la symétrie (utile si trop de variables binaires)
-
-    # 🔹 6. Réduire la tolérance d’optimalité
-
     
     solver.solve(model, tee=False)
 

@@ -1,6 +1,6 @@
 import pandas as pd
 import networkx as nx
-from src.distance import distance
+from distance import distance
 
 
 def data_processing(file, route):
